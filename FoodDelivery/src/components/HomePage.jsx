@@ -3,33 +3,41 @@ import React from "react";
 const dummyFoods = [
   {
     id: 1,
-    name: "Margherita Pizza",
-    description: "Classic delight with 100% real mozzarella cheese.",
-    price: 89900,
+    name: "Chocolate Lava Cake",
+    description: "Warm chocolate cake with a gooey molten center.",
+    price: 45000,
     image:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
+      "https://images.pexels.com/photos/533325/pexels-photo-533325.jpeg?auto=compress&w=400&h=300&fit=crop",
   },
   {
     id: 2,
-    name: "Veggie Burger",
-    description: "Loaded with fresh veggies and a tangy sauce.",
-    price: 64900,
+    name: "Strawberry Shortcake",
+    description: "Soft sponge cake layered with fresh cream and strawberries.",
+    price: 55000,
     image:
-      "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80",
+      "https://images.pexels.com/photos/704971/pexels-photo-704971.jpeg?auto=compress&w=400&h=300&fit=crop",
   },
   {
     id: 3,
-    name: "Chicken Biryani",
-    description: "Aromatic basmati rice with tender chicken pieces.",
-    price: 105000,
+    name: "Classic Croissant",
+    description: "Flaky, buttery croissant baked fresh every morning.",
+    price: 25000,
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+      "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=400&h=300&fit=crop",
+  },
+  {
+    id: 4,
+    name: "Red Velvet Cupcake",
+    description: "Moist red velvet cupcake topped with cream cheese frosting.",
+    price: 30000,
+    image:
+      "https://images.pexels.com/photos/14105/pexels-photo-14105.jpeg?auto=compress&w=400&h=300&fit=crop",
   },
 ];
 
 function HomePage() {
   return (
-    <div style={{ maxWidth: 900, margin: "40px auto", padding: 24 }}>
+    <div style={{ maxWidth: 1000, margin: "40px auto", padding: 24 }}>
       <header style={{ textAlign: "center", marginBottom: 32 }}>
         <h1
           style={{
@@ -38,11 +46,14 @@ function HomePage() {
             color: "#ff914d",
           }}
         >
-          {" "}
-          🍔 Cookies Boendakoe
+          🧁 Boendakoe Bakery & Cakes
         </h1>
         <p style={{ color: "#555", fontSize: 18 }}>
-          Welcome! Choose your favorite meal and enjoy fast delivery.
+          Freshly baked cakes, pastries, and breads delivered to your door!{" "}
+          <br />
+          <span style={{ color: "#ff914d", fontWeight: 600 }}>
+            Order now and enjoy fast delivery 🍰
+          </span>
         </p>
       </header>
       <div
@@ -116,7 +127,7 @@ function HomePage() {
                 fontWeight: 600,
               }}
             >
-              Order Now
+              Order Delivery
             </button>
           </div>
         ))}
