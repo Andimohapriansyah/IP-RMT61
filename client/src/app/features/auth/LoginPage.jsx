@@ -25,9 +25,12 @@ export default function LoginPage() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const idToken = credentialResponse.credential;
-      const res = await axios.post("http://localhost:3000/api/auth/google", {
-        idToken,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/google`,
+        {
+          idToken,
+        }
+      );
       // Save token to Redux and localStorage
       dispatch(
         setCredentials({

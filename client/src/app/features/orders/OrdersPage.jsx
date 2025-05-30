@@ -18,9 +18,12 @@ export default function OrdersPage() {
   }, [dispatch, token]);
 
   const handleOrder = () => {
-    if (menuId) {
-      dispatch(createOrder({ menuId, quantity, preorder, token }));
-    }
+    const items = [
+      { menuItemId: 1, quantity: 2, subtotal: 20000 },
+      { menuItemId: 2, quantity: 1, subtotal: 15000 },
+    ];
+    const orderType = "dine-in";
+    dispatch(createOrder({ items, orderType, token }));
   };
 
   const handlePay = async (orderId) => {

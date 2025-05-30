@@ -3,6 +3,7 @@ const router = express.Router();
 const { Order, OrderDetail, MenuItem } = require("../models");
 const authenticateToken = require("../middleware/auth");
 const midtransClient = require("midtrans-client");
+const { Op } = require("sequelize");
 
 const snap = new midtransClient.Snap({
   isProduction: false,
@@ -12,8 +13,14 @@ const snap = new midtransClient.Snap({
 
 // Create order
 router.post("/", authenticateToken, async (req, res) => {
-  const { items, orderType } = req.body;
   try {
+    console.log("ORDER BODY:", req.body); // Debug log
+    const { items, orderType } = req.body;
+    // Defensive check for items array
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Items array is required" });
+    }
+
     const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
     const order = await Order.create({
       userId: req.user.id,
@@ -31,7 +38,7 @@ router.post("/", authenticateToken, async (req, res) => {
     }));
     await OrderDetail.bulkCreate(orderDetails);
 
-    // Initiate Midtrans payment
+    // Initiate Midtrans payment (mock if needed)
     const parameter = {
       transaction_details: {
         order_id: order.id.toString(),
@@ -42,9 +49,17 @@ router.post("/", authenticateToken, async (req, res) => {
       },
     };
 
-    const transaction = await snap.createTransaction(parameter);
+    let transaction;
+    try {
+      transaction = await snap.createTransaction(parameter);
+    } catch (err) {
+      // If Midtrans fails, still return order for dev/testing
+      transaction = { token: "dummy-token" };
+    }
+
     res.json({ token: transaction.token, orderId: order.id });
   } catch (error) {
+    console.error("ORDER ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -66,15 +81,25 @@ router.get("/", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const order = await Order.findOne({
-      where: { id: req.params.id, userId: req.user.id, status: "pending" },
+      where: {
+        id: req.params.id,
+        userId: req.user.id,
+        status: { [Op.in]: ["pending", "unpaid"] },
+      },
     });
     if (!order)
       return res
         .status(404)
         .json({ error: "Order not found or cannot be canceled" });
+
+    // Delete order details first
+    await OrderDetail.destroy({ where: { orderId: order.id } });
+
+    // Then delete the order
     await order.destroy();
     res.json({ message: "Order canceled" });
   } catch (error) {
+    console.error(error); // For debugging
     res.status(500).json({ error: error.message });
   }
 });

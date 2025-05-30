@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { register } from "./authSlice";
+import { register, setCredentials } from "./authSlice";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +16,27 @@ export default function RegisterPage() {
     e.preventDefault();
     await dispatch(register({ email, password }));
     navigate("/");
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const idToken = credentialResponse.credential; // Rename to idToken
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/google`,
+        { idToken }
+      );
+      // Save token, update state, redirect, etc.
+      localStorage.setItem("token", res.data.token);
+      dispatch(
+        setCredentials({
+          token: res.data.token,
+          user: { email: res.data.email },
+        })
+      );
+      navigate("/");
+    } catch (err) {
+      alert("Google registration failed");
+    }
   };
 
   return (
@@ -39,6 +62,24 @@ export default function RegisterPage() {
           Register
         </button>
       </form>
+      <div style={{ margin: "1.5rem 0", textAlign: "center" }}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => alert("Google Sign Up Failed")}
+          width="100%"
+          shape="pill"
+          theme="filled_black"
+        />
+        <div
+          style={{
+            fontSize: "0.95rem",
+            color: "#a67c52",
+            marginTop: "0.5rem",
+          }}
+        >
+          Or sign up with Google
+        </div>
+      </div>
       {error && <div className="error">{error}</div>}
     </div>
   );
