@@ -23,8 +23,28 @@ export default function OrdersPage() {
     }
   };
 
-  const handlePay = (orderId) => {
-    dispatch(payOrder({ orderId, token }));
+  const handlePay = async (orderId) => {
+    // Await the thunk and get the token from the payload
+    const resultAction = await dispatch(payOrder({ orderId, token }));
+    const midtransToken = resultAction.payload?.token;
+    if (midtransToken && window.snap) {
+      window.snap.pay(midtransToken, {
+        onSuccess: function (result) {
+          /* handle success */
+        },
+        onPending: function (result) {
+          /* handle pending */
+        },
+        onError: function (result) {
+          /* handle error */
+        },
+        onClose: function () {
+          /* handle close */
+        },
+      });
+    } else {
+      alert("Failed to get payment token.");
+    }
   };
 
   const handleCancel = (orderId) => {
@@ -78,19 +98,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
-// ...after receiving the token from backend:
-window.snap.pay(midtransToken, {
-  onSuccess: function (result) {
-    /* handle success */
-  },
-  onPending: function (result) {
-    /* handle pending */
-  },
-  onError: function (result) {
-    /* handle error */
-  },
-  onClose: function () {
-    /* handle close */
-  },
-});
