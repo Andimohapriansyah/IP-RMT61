@@ -1,0 +1,45 @@
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { register } from "./authSlice";
+import { useNavigate } from "react-router-dom";
+
+export default function RegisterPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { status, error } = useSelector((state) => state.auth);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await dispatch(register({ email, password }));
+    navigate("/");
+  };
+
+  return (
+    <div className="form-container">
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <label>Password</label>
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+          placeholder="Password"
+          required
+        />
+        <button type="submit" disabled={status === "loading"}>
+          Register
+        </button>
+      </form>
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+}
