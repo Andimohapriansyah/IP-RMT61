@@ -43,7 +43,8 @@ router.post("/register", async (req, res) => {
 
 router.post("/google", async (req, res) => {
   try {
-    const { idToken } = req.body;
+    console.log("GOOGLE LOGIN BODY:", req.body);
+    const { idToken } = req.body; // Must be idToken
     const ticket = await client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -63,7 +64,32 @@ router.post("/google", async (req, res) => {
     );
     res.json({ token, email: user.email });
   } catch (err) {
+    console.error("GOOGLE LOGIN ERROR:", err); // <-- This line logs the real error
     res.status(401).json({ error: "Invalid Google token" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing email or password" });
+    }
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET
+    );
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

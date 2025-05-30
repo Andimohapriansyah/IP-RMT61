@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/orders";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`;
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
@@ -15,10 +15,12 @@ export const fetchOrders = createAsyncThunk(
 
 export const createOrder = createAsyncThunk(
   "orders/createOrder",
-  async ({ menuId, quantity, preorder, token }) => {
+  async ({ items, orderType, token }) => {
+    // items should be an array: [{ menuItemId, quantity, subtotal }, ...]
+    // orderType is a string, e.g., "dine-in"
     const res = await axios.post(
       API_URL,
-      { menuId, quantity, preorder },
+      { items, orderType },
       {
         headers: { Authorization: `Bearer ${token}` },
       }

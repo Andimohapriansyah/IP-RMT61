@@ -3,7 +3,6 @@ const app = require("../server");
 const { sequelize } = require("../models");
 
 beforeEach(async () => {
-  // Clean up Users table before each test to avoid duplicate email errors
   await sequelize.models.User.destroy({ where: {} });
 });
 
@@ -13,10 +12,10 @@ describe("POST /api/auth/register", () => {
       .post("/api/auth/register")
       .send({
         username: "John Doe",
-        email: `john${Date.now()}@example.com`, // unique email for each test run
+        email: `john${Date.now()}@example.com`,
         password: "password123",
       });
-    expect(res.statusCode).toBe(201); // Or 200, depending on your implementation
+    expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("user");
     expect(res.body).toHaveProperty("token");
   });
@@ -27,6 +26,34 @@ describe("POST /api/auth/register", () => {
       password: "password123",
     });
     expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+});
+
+describe("POST /api/auth/login", () => {
+  beforeEach(async () => {
+    await request(app).post("/api/auth/register").send({
+      username: "Jane Doe",
+      email: "jane@example.com",
+      password: "password123",
+    });
+  });
+
+  it("should login with correct credentials", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      email: "jane@example.com",
+      password: "password123",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("token");
+  });
+
+  it("should fail with wrong password", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      email: "jane@example.com",
+      password: "wrongpassword",
+    });
+    expect(res.statusCode).toBe(401);
     expect(res.body).toHaveProperty("error");
   });
 });
